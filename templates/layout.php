@@ -13,7 +13,7 @@ $content = $content ?? '';
     <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
-    <main class="container">
+    <main class="container<?= !empty($layoutWide) ? ' container-wide' : '' ?>">
         <?= $content ?>
     </main>
     <script src="/js/app.js" defer></script>

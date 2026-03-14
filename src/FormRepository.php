@@ -104,12 +104,20 @@ class FormRepository
     {
         return [
             'theme' => [
+                'logoUrl' => '',
+                'headerText' => '',
+                'headerBackground' => '#6b21a8',
+                'headerTextColor' => '#ffffff',
                 'background' => '#f5f5f5',
-                'backgroundImage' => null,
+                'backgroundImage' => '',
                 'primaryColor' => '#6b21a8',
                 'textColor' => '#1f2937',
                 'fontFamily' => 'Inter, sans-serif',
                 'borderRadius' => '8px',
+                'containerMaxWidth' => '560px',
+                'buttonBackground' => '#6b21a8',
+                'buttonTextColor' => '#ffffff',
+                'buttonBorderRadius' => '8px',
             ],
             'responsePage' => [
                 'enabled' => true,

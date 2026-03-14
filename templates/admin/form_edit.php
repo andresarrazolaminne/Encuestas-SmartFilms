@@ -2,6 +2,7 @@
 $pageTitle = 'Editar: ' . htmlspecialchars($form['title']);
 $error = $error ?? null;
 $success = $success ?? null;
+$t = $form['config']['theme'] ?? [];
 $definitionJson = isset($_POST['definition']) ? $_POST['definition'] : json_encode($form['definition'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 $configJson = isset($_POST['config']) ? $_POST['config'] : json_encode($form['config'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ob_start();
@@ -26,20 +27,40 @@ ob_start();
     <p>
         <label>Slug (URL: /f/slug)<br><input type="text" name="slug" required value="<?= htmlspecialchars($form['slug']) ?>" size="40"></label>
     </p>
+
+    <fieldset class="apariencia-section">
+        <legend>Apariencia del formulario público</legend>
+        <p><label>URL del logo<br><input type="url" name="theme_logo_url" value="<?= htmlspecialchars($t['logoUrl'] ?? '') ?>" placeholder="https://..."></label></p>
+        <p><label>Texto del encabezado<br><input type="text" name="theme_header_text" value="<?= htmlspecialchars($t['headerText'] ?? '') ?>" size="50" placeholder="Ej: Encuesta SmartFilms"></label></p>
+        <p><label>Color de fondo del encabezado<br><input type="text" name="theme_header_background" value="<?= htmlspecialchars($t['headerBackground'] ?? '#6b21a8') ?>" size="12"></label></p>
+        <p><label>Color del texto del encabezado<br><input type="text" name="theme_header_text_color" value="<?= htmlspecialchars($t['headerTextColor'] ?? '#ffffff') ?>" size="12"></label></p>
+        <p><label>Color de fondo de la página<br><input type="text" name="theme_background" value="<?= htmlspecialchars($t['background'] ?? '#f5f5f5') ?>" size="12"></label></p>
+        <p><label>URL imagen de fondo (opcional)<br><input type="url" name="theme_background_image" value="<?= htmlspecialchars($t['backgroundImage'] ?? '') ?>" placeholder="https://..."></label></p>
+        <p><label>Color principal (títulos, bordes)<br><input type="text" name="theme_primary_color" value="<?= htmlspecialchars($t['primaryColor'] ?? '#6b21a8') ?>" size="12"></label></p>
+        <p><label>Color del texto<br><input type="text" name="theme_text_color" value="<?= htmlspecialchars($t['textColor'] ?? '#1f2937') ?>" size="12"></label></p>
+        <p><label>Fuente (CSS)<br><input type="text" name="theme_font_family" value="<?= htmlspecialchars($t['fontFamily'] ?? 'Inter, sans-serif') ?>" size="40"></label></p>
+        <p><label>Ancho máximo del contenido (ej: 560px, 720px)<br><input type="text" name="theme_container_max_width" value="<?= htmlspecialchars($t['containerMaxWidth'] ?? '560px') ?>" size="12"></label></p>
+        <p><label>Border radius (ej: 8px)<br><input type="text" name="theme_border_radius" value="<?= htmlspecialchars($t['borderRadius'] ?? '8px') ?>" size="12"></label></p>
+        <p><strong>Botón Enviar</strong></p>
+        <p><label>Fondo del botón<br><input type="text" name="theme_button_background" value="<?= htmlspecialchars($t['buttonBackground'] ?? '#6b21a8') ?>" size="12"></label></p>
+        <p><label>Color del texto del botón<br><input type="text" name="theme_button_text_color" value="<?= htmlspecialchars($t['buttonTextColor'] ?? '#ffffff') ?>" size="12"></label></p>
+        <p><label>Border radius del botón (ej: 8px)<br><input type="text" name="theme_button_border_radius" value="<?= htmlspecialchars($t['buttonBorderRadius'] ?? '8px') ?>" size="12"></label></p>
+    </fieldset>
+
     <p>
         <label>Definition (JSON: secciones y campos)<br>
             <textarea name="definition" rows="18" cols="80" style="font-family: monospace; font-size: 12px;"><?= htmlspecialchars($definitionJson) ?></textarea>
         </label>
     </p>
     <p>
-        <label>Config (JSON: tema y página de respuesta)<br>
+        <label>Config (JSON: respuesta después de enviar y opciones avanzadas)<br>
             <textarea name="config" rows="12" cols="80" style="font-family: monospace; font-size: 12px;"><?= htmlspecialchars($configJson) ?></textarea>
         </label>
     </p>
     <p><button type="submit">Guardar</button></p>
 </form>
 
-<p><small>Puedes pegar el contenido de <code>data/smartfilms_definition.json</code> en Definition para usar el formulario SmartFilms completo.</small></p>
+<p><small>Puedes pegar el contenido de <code>data/smartfilms_definition.json</code> en Definition para usar el formulario SmartFilms completo. Los campos de Apariencia tienen prioridad sobre el JSON de Config al guardar.</small></p>
 
 <hr style="margin: 2rem 0;">
 <p>

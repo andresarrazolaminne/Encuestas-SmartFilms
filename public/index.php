@@ -173,6 +173,46 @@ Router::get('/admin/forms/{id}/responses', function (array $params) use ($baseDi
     require $baseDir . '/templates/admin/responses.php';
 });
 
+Router::get('/admin/forms/{id}/responses/export', function (array $params) use ($formRepo) {
+    $id = (int) $params['id'];
+    $form = $formRepo->findById($id, Auth::user()['id']);
+    if (!$form) {
+        header('Location: /admin');
+        exit;
+    }
+    $pdo = get_db();
+    $stmt = $pdo->prepare('SELECT id, response_data, created_at, ip FROM form_responses WHERE form_id = ? ORDER BY created_at ASC');
+    $stmt->execute([$form['id']]);
+    $responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $columns = [];
+    foreach ($form['definition']['sections'] ?? [] as $sec) {
+        foreach ($sec['fields'] ?? [] as $field) {
+            $fid = $field['id'] ?? '';
+            if ($fid !== '') {
+                $columns[] = ['id' => $fid, 'label' => $field['label'] ?? $fid];
+            }
+        }
+    }
+    $filename = 'respuestas-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($form['slug'])) . '.csv';
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    $out = fopen('php://output', 'w');
+    fprintf($out, "\xEF\xBB\xBF"); // UTF-8 BOM para Excel
+    fputcsv($out, array_merge(['ID', 'Fecha'], array_column($columns, 'label'), ['IP']));
+    foreach ($responses as $r) {
+        $data = is_string($r['response_data']) ? json_decode($r['response_data'], true) : ($r['response_data'] ?? []);
+        $row = [$r['id'], $r['created_at']];
+        foreach ($columns as $col) {
+            $v = $data[$col['id']] ?? '';
+            $row[] = is_array($v) ? implode(', ', $v) : (string) $v;
+        }
+        $row[] = $r['ip'] ?? '';
+        fputcsv($out, $row);
+    }
+    fclose($out);
+    exit;
+});
+
 Router::post('/admin/forms/{id}/delete', function (array $params) use ($formRepo) {
     $id = (int) $params['id'];
     if ($formRepo->delete($id, Auth::user()['id'])) {
@@ -218,11 +258,29 @@ Router::post('/admin/forms/{id}', function (array $params) use ($baseDir, $formR
         require $baseDir . '/templates/admin/form_edit.php';
         return;
     }
+    $config = $config ?? $form['config'];
+    // Apariencia: sobrescribir theme desde los campos del formulario
+    $config['theme'] = [
+        'logoUrl' => trim((string) ($_POST['theme_logo_url'] ?? '')),
+        'headerText' => trim((string) ($_POST['theme_header_text'] ?? '')),
+        'headerBackground' => trim((string) ($_POST['theme_header_background'] ?? $config['theme']['headerBackground'] ?? '#6b21a8')),
+        'headerTextColor' => trim((string) ($_POST['theme_header_text_color'] ?? $config['theme']['headerTextColor'] ?? '#ffffff')),
+        'background' => trim((string) ($_POST['theme_background'] ?? $config['theme']['background'] ?? '#f5f5f5')),
+        'backgroundImage' => trim((string) ($_POST['theme_background_image'] ?? '')),
+        'primaryColor' => trim((string) ($_POST['theme_primary_color'] ?? $config['theme']['primaryColor'] ?? '#6b21a8')),
+        'textColor' => trim((string) ($_POST['theme_text_color'] ?? $config['theme']['textColor'] ?? '#1f2937')),
+        'fontFamily' => trim((string) ($_POST['theme_font_family'] ?? $config['theme']['fontFamily'] ?? 'Inter, sans-serif')),
+        'borderRadius' => trim((string) ($_POST['theme_border_radius'] ?? $config['theme']['borderRadius'] ?? '8px')),
+        'containerMaxWidth' => trim((string) ($_POST['theme_container_max_width'] ?? $config['theme']['containerMaxWidth'] ?? '560px')),
+        'buttonBackground' => trim((string) ($_POST['theme_button_background'] ?? $config['theme']['buttonBackground'] ?? '#6b21a8')),
+        'buttonTextColor' => trim((string) ($_POST['theme_button_text_color'] ?? $config['theme']['buttonTextColor'] ?? '#ffffff')),
+        'buttonBorderRadius' => trim((string) ($_POST['theme_button_border_radius'] ?? $config['theme']['buttonBorderRadius'] ?? '8px')),
+    ];
     $formRepo->update($id, Auth::user()['id'], [
         'title' => $title,
         'slug' => $slug,
         'definition' => $definition ?? $form['definition'],
-        'config' => $config ?? $form['config'],
+        'config' => $config,
     ]);
     $form = $formRepo->findById($id, Auth::user()['id']);
     $success = 'Guardado.';
