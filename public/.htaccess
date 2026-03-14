@@ -1,0 +1,9 @@
+# Encuestas SmartFilms – Apache: todas las peticiones al front controller
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    # No reescribir archivos ni directorios existentes
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

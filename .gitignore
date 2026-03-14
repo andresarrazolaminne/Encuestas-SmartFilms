@@ -1,0 +1,19 @@
+# Credenciales y entorno
+.env
+
+# PHP
+vendor/
+composer.lock
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Sesiones (carpeta del proyecto)
+storage/
