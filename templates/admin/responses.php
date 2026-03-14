@@ -23,7 +23,10 @@ ob_start();
     <a href="/admin">Listado</a>
     <?php if (!empty($responses)): ?>
         —
-        <a href="/admin/forms/<?= (int) $form['id'] ?>/responses/export" class="btn-download">Descargar Excel (CSV)</a>
+        <span class="export-label">Descargar:</span>
+        <a href="/admin/forms/<?= (int) $form['id'] ?>/responses/export?format=csv&amp;sep=comma" class="btn-download">CSV (coma)</a>
+        <a href="/admin/forms/<?= (int) $form['id'] ?>/responses/export?format=csv&amp;sep=semicolon" class="btn-download">CSV (punto y coma)</a>
+        <a href="/admin/forms/<?= (int) $form['id'] ?>/responses/export?format=xls" class="btn-download">XLS (Excel)</a>
     <?php endif; ?>
 </p>
 

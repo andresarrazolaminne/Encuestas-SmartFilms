@@ -12,6 +12,7 @@ input, button { padding: 0.5rem; }
 /* Vista de respuestas */
 .responses-actions { margin-bottom: 1rem; }
 .responses-actions a { margin-right: 0.5rem; }
+.export-label { margin-right: 0.25rem; color: #555; font-size: 0.9rem; }
 .btn-download { display: inline-block; background: #0a0; color: #fff; padding: 0.4rem 0.8rem; border-radius: 6px; text-decoration: none; font-weight: 500; }
 .btn-download:hover { opacity: 0.9; }
 .responses-count { margin-bottom: 1rem; color: #555; }
@@ -35,3 +36,5 @@ input, button { padding: 0.5rem; }
 .apariencia-section p { margin: 0.75rem 0; }
 .apariencia-section p:first-of-type { margin-top: 0; }
 .apariencia-section strong { display: block; margin-top: 1rem; }
+.thank-section { margin-top: 1rem; }
+.thank-section textarea { width: 100%; max-width: 480px; }

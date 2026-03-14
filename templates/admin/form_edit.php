@@ -3,6 +3,7 @@ $pageTitle = 'Editar: ' . htmlspecialchars($form['title']);
 $error = $error ?? null;
 $success = $success ?? null;
 $t = $form['config']['theme'] ?? [];
+$rp = $form['config']['responsePage'] ?? [];
 $definitionJson = isset($_POST['definition']) ? $_POST['definition'] : json_encode($form['definition'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 $configJson = isset($_POST['config']) ? $_POST['config'] : json_encode($form['config'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ob_start();
@@ -45,6 +46,15 @@ ob_start();
         <p><label>Fondo del botón<br><input type="text" name="theme_button_background" value="<?= htmlspecialchars($t['buttonBackground'] ?? '#6b21a8') ?>" size="12"></label></p>
         <p><label>Color del texto del botón<br><input type="text" name="theme_button_text_color" value="<?= htmlspecialchars($t['buttonTextColor'] ?? '#ffffff') ?>" size="12"></label></p>
         <p><label>Border radius del botón (ej: 8px)<br><input type="text" name="theme_button_border_radius" value="<?= htmlspecialchars($t['buttonBorderRadius'] ?? '8px') ?>" size="12"></label></p>
+    </fieldset>
+
+    <fieldset class="apariencia-section thank-section">
+        <legend>Página de agradecimiento</legend>
+        <p><label>Título<br><input type="text" name="response_page_title" value="<?= htmlspecialchars($rp['title'] ?? '¡Gracias por participar!') ?>" size="50" placeholder="Ej: ¡Gracias por participar!"></label></p>
+        <p><label>Mensaje<br><textarea name="response_page_message" rows="4" cols="60" placeholder="Ej: Tu respuesta ha sido registrada."><?= htmlspecialchars($rp['message'] ?? 'Tu respuesta ha sido registrada.') ?></textarea></label></p>
+        <p><label>Redirigir a URL (opcional; si lo rellenas, el usuario irá a esta URL en lugar de ver la página de agradecimiento)<br><input type="url" name="response_page_redirect_url" value="<?= htmlspecialchars($rp['redirectUrl'] ?? '') ?>" size="50" placeholder="https://..."></label></p>
+        <p><label>Texto del botón (opcional)<br><input type="text" name="response_page_button_text" value="<?= htmlspecialchars($rp['buttonText'] ?? '') ?>" size="40" placeholder="Ej: Volver al inicio"></label></p>
+        <p><label>URL del botón (opcional; a dónde lleva el botón. Puede ser https://... o / para inicio)<br><input type="text" name="response_page_button_url" value="<?= htmlspecialchars($rp['buttonUrl'] ?? '') ?>" size="50" placeholder="https://... o /"></label></p>
     </fieldset>
 
     <p>

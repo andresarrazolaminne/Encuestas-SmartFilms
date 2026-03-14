@@ -193,12 +193,42 @@ Router::get('/admin/forms/{id}/responses/export', function (array $params) use (
             }
         }
     }
-    $filename = 'respuestas-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($form['slug'])) . '.csv';
+    $baseName = 'respuestas-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($form['slug']));
+    $format = $_GET['format'] ?? 'csv';
+    $sep = (isset($_GET['sep']) && $_GET['sep'] === 'semicolon') ? ';' : ',';
+
+    if ($format === 'xls') {
+        $filename = $baseName . '.xls';
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        echo "\xEF\xBB\xBF"; // UTF-8 BOM
+        echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1">';
+        echo '<tr>';
+        foreach (array_merge(['ID', 'Fecha'], array_column($columns, 'label'), ['IP']) as $h) {
+            echo '<th>' . htmlspecialchars($h, ENT_QUOTES, 'UTF-8') . '</th>';
+        }
+        echo '</tr>';
+        foreach ($responses as $r) {
+            $data = is_string($r['response_data']) ? json_decode($r['response_data'], true) : ($r['response_data'] ?? []);
+            echo '<tr>';
+            echo '<td>' . (int) $r['id'] . '</td><td>' . htmlspecialchars($r['created_at'] ?? '', ENT_QUOTES, 'UTF-8') . '</td>';
+            foreach ($columns as $col) {
+                $v = $data[$col['id']] ?? '';
+                $cell = is_array($v) ? implode(', ', $v) : (string) $v;
+                echo '<td>' . htmlspecialchars($cell, ENT_QUOTES, 'UTF-8') . '</td>';
+            }
+            echo '<td>' . htmlspecialchars($r['ip'] ?? '', ENT_QUOTES, 'UTF-8') . '</td></tr>';
+        }
+        echo '</table></body></html>';
+        exit;
+    }
+
+    $filename = $baseName . '.csv';
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     $out = fopen('php://output', 'w');
-    fprintf($out, "\xEF\xBB\xBF"); // UTF-8 BOM para Excel
-    fputcsv($out, array_merge(['ID', 'Fecha'], array_column($columns, 'label'), ['IP']));
+    fprintf($out, "\xEF\xBB\xBF");
+    fputcsv($out, array_merge(['ID', 'Fecha'], array_column($columns, 'label'), ['IP']), $sep);
     foreach ($responses as $r) {
         $data = is_string($r['response_data']) ? json_decode($r['response_data'], true) : ($r['response_data'] ?? []);
         $row = [$r['id'], $r['created_at']];
@@ -207,7 +237,7 @@ Router::get('/admin/forms/{id}/responses/export', function (array $params) use (
             $row[] = is_array($v) ? implode(', ', $v) : (string) $v;
         }
         $row[] = $r['ip'] ?? '';
-        fputcsv($out, $row);
+        fputcsv($out, $row, $sep);
     }
     fclose($out);
     exit;
@@ -275,6 +305,14 @@ Router::post('/admin/forms/{id}', function (array $params) use ($baseDir, $formR
         'buttonBackground' => trim((string) ($_POST['theme_button_background'] ?? $config['theme']['buttonBackground'] ?? '#6b21a8')),
         'buttonTextColor' => trim((string) ($_POST['theme_button_text_color'] ?? $config['theme']['buttonTextColor'] ?? '#ffffff')),
         'buttonBorderRadius' => trim((string) ($_POST['theme_button_border_radius'] ?? $config['theme']['buttonBorderRadius'] ?? '8px')),
+    ];
+    $config['responsePage'] = [
+        'enabled' => true,
+        'title' => trim((string) ($_POST['response_page_title'] ?? $config['responsePage']['title'] ?? '¡Gracias por participar!')),
+        'message' => trim((string) ($_POST['response_page_message'] ?? $config['responsePage']['message'] ?? 'Tu respuesta ha sido registrada.')),
+        'redirectUrl' => trim((string) ($_POST['response_page_redirect_url'] ?? $config['responsePage']['redirectUrl'] ?? '')) ?: null,
+        'buttonText' => trim((string) ($_POST['response_page_button_text'] ?? $config['responsePage']['buttonText'] ?? '')),
+        'buttonUrl' => trim((string) ($_POST['response_page_button_url'] ?? $config['responsePage']['buttonUrl'] ?? '')) ?: null,
     ];
     $formRepo->update($id, Auth::user()['id'], [
         'title' => $title,

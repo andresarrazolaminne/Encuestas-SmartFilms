@@ -124,6 +124,8 @@ class FormRepository
                 'title' => '¡Gracias por participar!',
                 'message' => 'Tu respuesta ha sido registrada.',
                 'redirectUrl' => null,
+                'buttonText' => '',
+                'buttonUrl' => '',
             ],
         ];
     }
